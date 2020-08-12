@@ -15,9 +15,8 @@ export default {
   components: {
     VideoTable
     // HelloWorld
-  },
+  }
 };
 </script>
 
-<style>
-</style>
+<style></style>
