@@ -3,6 +3,8 @@
     <video class="mainVideo" v-on:click="playAndPause()">
       <source :src="video.videoUrls[0]" type="video/mp4" />
     </video>
+    <!-- <video-player :options="videoOptions" /> -->
+
     <div v-if="video.videoUrls.length > 1" class="subVideosContainer">
       <div
         v-for="otherVideos in video.videoUrls.slice(1)"
@@ -18,8 +20,13 @@
 </template>
 
 <script>
+// import VideoPlayer from "@/components/VideoPlayer.vue";
+
 export default {
   name: "VideoSite",
+  components: {
+    // VideoPlayer
+  },
   props: {
     video: {
       type: Object,
@@ -28,7 +35,17 @@ export default {
   },
   data() {
     return {
-      mainVideoIsPlaying: false
+      mainVideoIsPlaying: false,
+      videoOptions: {
+        autoplay: true,
+        controls: true,
+        sources: [
+          {
+            src: "camera1.mp4",
+            type: "video/mp4"
+          }
+        ]
+      }
     };
   },
   methods: {
