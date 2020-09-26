@@ -1,31 +1,46 @@
 <template>
   <div>
-    <video class="mainVideo" v-on:click="playAndPause()">
+    <!-- <video class="mainVideo" v-on:click="playAndPause()">
       <source :src="video.videoUrls[0]" type="video/mp4" />
-    </video>
-    <!-- <video-player :options="videoOptions" /> -->
+    </video> -->
+    <video-player
+      class="mainVideo"
+      :options="videoOptions[0]"
+      @play="onPlayerPlay($event)"
+      @pause="onPlayerPause($event)"
+      @statechanged="playerStateChanged($event)"
+    />
 
     <div v-if="video.videoUrls.length > 1" class="subVideosContainer">
       <div
-        v-for="otherVideos in video.videoUrls.slice(1)"
-        v-bind:key="otherVideos.id"
+        v-for="otherVideo in videoOptions.slice(1)"
+        v-bind:key="otherVideo.id"
         class="subVideoWrapper"
       >
-        <video class="subVideo">
+        <!-- <video class="subVideo">
           <source :src="otherVideos" type="video/mp4" />
-        </video>
+        </video> -->
+        <video-player
+          class="subVideo"
+          :options="otherVideo"
+          @play="onPlayerPlay($event)"
+          @pause="onPlayerPause($event)"
+          @statechanged="playerStateChanged($event)"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-// import VideoPlayer from "@/components/VideoPlayer.vue";
+import VideoPlayer from "@/components/VideoPlayer.vue";
+
+import "video.js/dist/video-js.css";
 
 export default {
   name: "VideoSite",
   components: {
-    // VideoPlayer
+    VideoPlayer
   },
   props: {
     video: {
@@ -36,17 +51,23 @@ export default {
   data() {
     return {
       mainVideoIsPlaying: false,
-      videoOptions: {
+      videoOptions: []
+    };
+  },
+  beforeMount() {
+    this.video.videoUrls.forEach(videoUrl => {
+      this.videoOptions.push({
         autoplay: true,
         controls: true,
+        fluid: true,
         sources: [
           {
-            src: "camera1.mp4",
+            src: videoUrl,
             type: "video/mp4"
           }
         ]
-      }
-    };
+      });
+    });
   },
   methods: {
     playAndPause() {
@@ -58,18 +79,27 @@ export default {
       });
 
       mainVideo.paused ? mainVideo.play() : mainVideo.pause();
+    },
+    onPlayerPause(player) {
+      console.log("player pause!", player);
+    },
+    // or listen state event
+    playerStateChanged(playerCurrentState) {
+      console.log("player current update state", playerCurrentState);
     }
   }
 };
 </script>
 
 <style>
+.vjs-control-bar {
+  display: none !important;
+}
 td {
   border-bottom: solid 1px lightgrey;
   padding: 0.5rem 0px;
   font-weight: 700;
 }
-
 .index-td {
   font-weight: 400;
 }
@@ -80,8 +110,7 @@ td {
   width: 100%;
 }
 .subVideoWrapper {
-  min-width: 150px;
-  max-width: 20%;
+  width: 25%;
   margin: 2.5rem;
 }
 .subVideosContainer {
