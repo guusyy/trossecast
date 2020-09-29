@@ -5,10 +5,10 @@
     </video> -->
     <video-player
       class="mainVideo"
+      ref="videoPlayer"
       :options="videoOptions[0]"
       @play="onPlayerPlay($event)"
       @pause="onPlayerPause($event)"
-      @statechanged="playerStateChanged($event)"
     />
 
     <div v-if="video.videoUrls.length > 1" class="subVideosContainer">
@@ -25,7 +25,6 @@
           :options="otherVideo"
           @play="onPlayerPlay($event)"
           @pause="onPlayerPause($event)"
-          @statechanged="playerStateChanged($event)"
         />
       </div>
     </div>
@@ -33,14 +32,14 @@
 </template>
 
 <script>
-import VideoPlayer from "@/components/VideoPlayer.vue";
+import { videoPlayer } from "vue-video-player";
 
 import "video.js/dist/video-js.css";
 
 export default {
   name: "VideoSite",
   components: {
-    VideoPlayer
+    videoPlayer
   },
   props: {
     video: {
@@ -69,6 +68,16 @@ export default {
       });
     });
   },
+  mounted() {
+    let mainVideo = this.$el.querySelectorAll(".vjs-tech");
+
+    mainVideo[0].pause();
+  },
+  computed: {
+    player() {
+      return this.$refs.videoPlayer.player;
+    }
+  },
   methods: {
     playAndPause() {
       let subVideos = this.$el.querySelectorAll(".subVideo");
@@ -80,12 +89,18 @@ export default {
 
       mainVideo.paused ? mainVideo.play() : mainVideo.pause();
     },
+    // listen event
+    onPlayerPlay(player) {
+      console.log("player play!", player);
+    },
     onPlayerPause(player) {
       console.log("player pause!", player);
     },
-    // or listen state event
-    playerStateChanged(playerCurrentState) {
-      console.log("player current update state", playerCurrentState);
+    // player is ready
+    playerReadied(player) {
+      console.log("the player is readied", player);
+      // you can use it to do something...
+      // player.[methods]
     }
   }
 };
