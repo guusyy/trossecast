@@ -5,7 +5,7 @@
       :key="video.id"
       :video="video"
       :activeRow="activeRow"
-      :setActiveRow="setActiveRow"
+      @set-active-row="setActiveRow"
     />
   </table>
 </template>
@@ -58,9 +58,9 @@ export default {
     };
   },
   methods: {
-    setActiveRow: function(activeRow) {
+    setActiveRow(activeRow) {
       this.activeRow == activeRow
-        ? (this.activeRow = 10000)
+        ? (this.activeRow = null)
         : (this.activeRow = activeRow);
     }
   }

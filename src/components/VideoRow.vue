@@ -1,6 +1,6 @@
 <template>
   <tbody>
-    <tr class="videoRow" v-on:click="setActiveRow(video.id)">
+    <tr class="videoRow" v-on:click="$emit('set-active-row', video.id)">
       <td class="index-td">{{ video.id }}</td>
       <td>{{ video.date }}</td>
       <td>{{ video.duration }}</td>
@@ -32,9 +32,6 @@ export default {
     activeRow: {
       type: Number,
       required: true
-    },
-    setActiveRow: {
-      type: Function
     }
   }
 };
