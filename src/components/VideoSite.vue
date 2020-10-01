@@ -95,6 +95,7 @@ export default {
       let targetSource = event.srcElement;
 
       if (targetSource.classList.contains("mainVideo")) {
+        // eslint-disable-next-line prettier/prettier
         let mainVideoPlayer = this.$el.querySelector(".mainVideo").childNodes[0].childNodes[0].player;
         let subVideos = this.$el.querySelectorAll(".subVideo");
 
@@ -148,7 +149,7 @@ td {
 }
 .mainVideo {
   order: 1;
-  width:100%
+  width: 100%;
 }
 .subVideo {
   margin: 2.5rem;
