@@ -60,7 +60,7 @@ export default {
   methods: {
     setActiveRow(activeRow) {
       this.activeRow == activeRow
-        ? (this.activeRow = null)
+        ? (this.activeRow = 100000)
         : (this.activeRow = activeRow);
     }
   }
