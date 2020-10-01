@@ -10,6 +10,7 @@
   "dependencies": {
     "@algoz098/vue-player": "^0.4.3",
     "core-js": "^3.6.5",
+    "jquery": "^3.5.1",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vue-video-player": "^5.0.2"

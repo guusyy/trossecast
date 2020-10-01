@@ -3,9 +3,10 @@
     <!-- <video class="mainVideo" v-on:click="playAndPause()">
       <source :src="video.videoUrls[0]" type="video/mp4" />
     </video> -->
-    <div v-if="video.videoUrls.length == 1" @click="playAndPause()">
+    <div v-if="video.videoUrls.length == 1">
       <video-player
-        class="mainVideo"
+        class="singleVideo"
+        @ready="playerReadied"
         :options="videoOptions[0]"
         ref="mainVideo"
       />
@@ -23,6 +24,7 @@
           class="video"
           :options="videoOptions[0]"
           ref="mainVideo"
+          @ready="playerReadied"
         />
       </div>
       <div
@@ -45,6 +47,7 @@
 
 <script>
 import { videoPlayer } from "vue-video-player";
+import $ from "jquery";
 
 import "video.js/dist/video-js.css";
 
@@ -62,7 +65,12 @@ export default {
   data() {
     return {
       mainVideoIsPlaying: false,
-      videoOptions: []
+      videoOptions: [],
+      thumbnails: [],
+      thumbnailWidth: 158 / 2,
+      thumbnailHeight: 90 / 2,
+      horizontalItemCount: 5,
+      verticalItemCount: 5
     };
   },
   beforeMount() {
@@ -123,8 +131,238 @@ export default {
     },
     playerReadied(player) {
       console.log("the player is readied", player);
-      // you can use it to do something...
-      // player.[methods]
+
+      var that = player;
+      let vm = this;
+
+      var videoSource = player.player_.children_[0];
+
+      var video = $(videoSource)
+        .clone()
+        .css("display", "none")
+        .appendTo("body")[0];
+
+      // videojs element
+      var root = $(videoSource).closest(".video-js");
+
+      // control bar element
+      var controlBar = root.find(".vjs-control-bar");
+
+      // thumbnail element
+      controlBar.append('<div class="vjs-thumbnail"></div>');
+
+      //
+      controlBar.on("mousemove", ".vjs-progress-control", function() {
+        // getting time
+        var time = $(player)
+          .find(".vjs-mouse-display .vjs-time-tooltip")
+          .text();
+
+        //
+        var temp = null;
+
+        // format: 09
+        if (/^\d+$/.test(time)) {
+          // re-format to: 0:0:09
+          time = "0:0:" + time;
+        }
+        // format: 1:09
+        else if (/^\d+:\d+$/.test(time)) {
+          // re-format to: 0:1:09
+          time = "0:" + time;
+        }
+
+        //
+        temp = time.split(":");
+
+        // calculating to get seconds
+        time = +temp[0] * 60 * 60 + +temp[1] * 60 + +temp[2];
+
+        //
+        for (var item of vm.thumbnails) {
+          //
+          var data = item.sec.find(x => x.index === time);
+
+          // thumbnail found
+          if (data) {
+            // getting mouse position based on "vjs-mouse-display" element
+            var position = controlBar.find(".vjs-mouse-display").position();
+
+            // updating thumbnail css
+            controlBar.find(".vjs-thumbnail").css({
+              "background-image": "url(" + item.data + ")",
+              "background-position-x": data.backgroundPositionX,
+              "background-position-y": data.backgroundPositionY,
+              left: position.left + 10,
+              display: "block"
+            });
+
+            // exit
+            return;
+          }
+        }
+      });
+
+      // mouse leaving the control bar
+      controlBar.on("mouseout", ".vjs-progress-control", function() {
+        // hidding thumbnail
+        controlBar.find(".vjs-thumbnail").css("display", "none");
+      });
+
+      video.addEventListener("loadeddata", async function() {
+        //
+        video.pause();
+
+        //
+        var count = 1;
+
+        //
+        var id = 1;
+
+        //
+        var x = 0,
+          y = 0;
+
+        //
+        var array = [];
+
+        //
+        var duration = parseInt(that.duration());
+        console.log(vm.horizontalItemCount);
+        //
+        for (var i = 1; i <= duration; i++) {
+          array.push(i);
+        }
+
+        //
+        var canvas;
+
+        //
+        var ii, jj;
+
+        for (ii = 0, jj = array.length; ii < jj; ii += vm.horizontalItemCount) {
+          //
+          for (var startIndex of array.slice(ii, ii + vm.horizontalItemCount)) {
+            //
+            var backgroundPositionX = x * vm.thumbnailWidth;
+
+            //
+            var backgroundPositionY = y * vm.thumbnailHeight;
+
+            //
+            var item = vm.thumbnails.find(x => x.id === id);
+
+            if (!item) {
+              //
+
+              //
+              canvas = document.createElement("canvas");
+
+              //
+              canvas.width = vm.thumbnailWidth * vm.horizontalItemCount;
+              canvas.height = vm.thumbnailHeight * vm.verticalItemCount;
+
+              //
+              vm.thumbnails.push({
+                id: id,
+                canvas: canvas,
+                sec: [
+                  {
+                    index: startIndex,
+                    backgroundPositionX: -backgroundPositionX,
+                    backgroundPositionY: -backgroundPositionY
+                  }
+                ]
+              });
+            } else {
+              //
+
+              //
+              canvas = item.canvas;
+
+              //
+              item.sec.push({
+                index: startIndex,
+                backgroundPositionX: -backgroundPositionX,
+                backgroundPositionY: -backgroundPositionY
+              });
+            }
+
+            //
+            var context = canvas.getContext("2d");
+
+            //
+            video.currentTime = startIndex;
+
+            //
+            await new Promise(function(resolve) {
+              var event = function() {
+                //
+                context.drawImage(
+                  video,
+                  backgroundPositionX,
+                  backgroundPositionY,
+                  vm.thumbnailWidth,
+                  vm.thumbnailHeight
+                );
+
+                //
+                x++;
+
+                // removing duplicate events
+                video.removeEventListener("canplay", event);
+
+                //
+                resolve();
+              };
+
+              //
+              video.addEventListener("canplay", event);
+            });
+
+            // 1 thumbnail is generated completely
+            count++;
+          }
+
+          // reset x coordinate
+          x = 0;
+
+          // increase y coordinate
+          y++;
+
+          // checking for overflow
+          if (count > vm.horizontalItemCount * vm.verticalItemCount) {
+            //
+            count = 1;
+
+            //
+            x = 0;
+
+            //
+            y = 0;
+
+            //
+            id++;
+          }
+        }
+
+        // looping through thumbnail list to update thumbnail
+        vm.thumbnails.forEach(function(item) {
+          // converting canvas to blob to get short url
+          item.canvas.toBlob(
+            blob => (item.data = URL.createObjectURL(blob)),
+            "image/jpeg"
+          );
+
+          // deleting unused property
+          delete item.canvas;
+        });
+        console.log(vm.thumbnails);
+        console.log("done...");
+      });
+
+      // playing video to hit "loadeddata" event
+      video.play();
     }
   }
 };

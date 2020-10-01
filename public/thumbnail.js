@@ -1,3 +1,5 @@
+// https://stackoverflow.com/questions/59444862/how-to-generate-video-thumbnails-and-preview-them-while-hovering-on-the-progress
+
 var thumbnails = [];
 
 var thumbnailWidth = 158;
