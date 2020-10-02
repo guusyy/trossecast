@@ -132,21 +132,21 @@ export default {
     playerReadied(player) {
       console.log("the player is readied", player);
 
-      var that = player;
+      const THAT = player;
       let vm = this;
 
-      var videoSource = player.player_.children_[0];
+      const VIDEOSOURCE = player.player_.children_[0];
 
-      var video = $(videoSource)
+      let video = $(VIDEOSOURCE)
         .clone()
         .css("display", "none")
         .appendTo("body")[0];
 
       // videojs element
-      var root = $(videoSource).closest(".video-js");
+      const ROOT = $(VIDEOSOURCE).closest(".video-js");
 
       // control bar element
-      var controlBar = root.find(".vjs-control-bar");
+      let controlBar = ROOT.find(".vjs-control-bar");
 
       // thumbnail element
       controlBar.append('<div class="vjs-thumbnail"></div>');
@@ -154,12 +154,12 @@ export default {
       //
       controlBar.on("mousemove", ".vjs-progress-control", function() {
         // getting time
-        var time = $(player)
+        let time = $(player)
           .find(".vjs-mouse-display .vjs-time-tooltip")
           .text();
 
         //
-        var temp = null;
+        let temp = null;
 
         // format: 09
         if (/^\d+$/.test(time)) {
@@ -179,14 +179,14 @@ export default {
         time = +temp[0] * 60 * 60 + +temp[1] * 60 + +temp[2];
 
         //
-        for (var item of vm.thumbnails) {
+        for (let item of vm.thumbnails) {
           //
-          var data = item.sec.find(x => x.index === time);
+          let data = item.sec.find(x => x.index === time);
 
           // thumbnail found
           if (data) {
             // getting mouse position based on "vjs-mouse-display" element
-            var position = controlBar.find(".vjs-mouse-display").position();
+            let position = controlBar.find(".vjs-mouse-display").position();
 
             // updating thumbnail css
             controlBar.find(".vjs-thumbnail").css({
@@ -214,43 +214,43 @@ export default {
         video.pause();
 
         //
-        var count = 1;
+        let count = 1;
 
         //
-        var id = 1;
+        let id = 1;
 
         //
-        var x = 0,
+        let x = 0,
           y = 0;
 
         //
-        var array = [];
+        let array = [];
 
         //
-        var duration = parseInt(that.duration());
+        let duration = parseInt(THAT.duration());
         console.log(vm.horizontalItemCount);
         //
-        for (var i = 1; i <= duration; i++) {
+        for (let i = 1; i <= duration; i++) {
           array.push(i);
         }
 
         //
-        var canvas;
+        let canvas;
 
         //
-        var ii, jj;
+        let ii, jj;
 
         for (ii = 0, jj = array.length; ii < jj; ii += vm.horizontalItemCount) {
           //
-          for (var startIndex of array.slice(ii, ii + vm.horizontalItemCount)) {
+          for (let startIndex of array.slice(ii, ii + vm.horizontalItemCount)) {
             //
-            var backgroundPositionX = x * vm.thumbnailWidth;
+            let backgroundPositionX = x * vm.thumbnailWidth;
 
             //
-            var backgroundPositionY = y * vm.thumbnailHeight;
+            let backgroundPositionY = y * vm.thumbnailHeight;
 
             //
-            var item = vm.thumbnails.find(x => x.id === id);
+            let item = vm.thumbnails.find(x => x.id === id);
 
             if (!item) {
               //
@@ -289,14 +289,14 @@ export default {
             }
 
             //
-            var context = canvas.getContext("2d");
+            let context = canvas.getContext("2d");
 
             //
             video.currentTime = startIndex;
 
             //
             await new Promise(function(resolve) {
-              var event = function() {
+              let event = function() {
                 //
                 context.drawImage(
                   video,
