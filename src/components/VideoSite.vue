@@ -27,6 +27,31 @@
           @ready="playerReadied"
         />
       </div>
+      <div class="thumbnailNavigation">
+        <template v-for="thumbnailImage in thumbnailsRender">
+          <div
+            class="thumbnail"
+            v-for="thumbnail in thumbnailImage.sec"
+            v-bind:key="thumbnail.index"
+            :style="{
+              marginLeft:
+                windowWidth / amountOfThumbnails - thumbnailWidth + 'px'
+            }"
+          >
+            <div
+              alt=""
+              @click="goToTime(thumbnail.time)"
+              :style="{
+                backgroundImage: 'url(' + thumbnailImage.image + ')',
+                backgroundPositionX: thumbnail.backgroundPositionX + 'px',
+                backgroundPositionY: thumbnail.backgroundPositionY + 'px',
+                width: thumbnailWidth + 'px',
+                height: thumbnailHeight + 'px'
+              }"
+            ></div>
+          </div>
+        </template>
+      </div>
       <div
         v-for="otherVideo in videoOptions.slice(1)"
         v-bind:key="otherVideo.id"
@@ -64,14 +89,26 @@ export default {
   },
   data() {
     return {
+      windowWidth: window.innerWidth,
+      amountOfThumbnails: 100,
       mainVideoIsPlaying: false,
       videoOptions: [],
       thumbnails: [],
+      thumbnailsRender: [],
       thumbnailWidth: 158 / 2,
       thumbnailHeight: 90 / 2,
       horizontalItemCount: 5,
       verticalItemCount: 5
     };
+  },
+  watch: {
+    thumbnails() {
+      let vm = this;
+      setTimeout(function() {
+        vm.thumbnailsRender = null;
+        vm.thumbnailsRender = vm.thumbnails;
+      }, 10000);
+    }
   },
   beforeMount() {
     this.video.videoUrls.forEach(videoUrl => {
@@ -89,9 +126,9 @@ export default {
     });
   },
   mounted() {
-    let mainVideo = this.$el.querySelectorAll(".vjs-tech");
-
-    mainVideo[0].pause();
+    this.$nextTick(() => {
+      window.addEventListener("resize", this.onResize);
+    });
   },
   computed: {
     player() {
@@ -111,14 +148,27 @@ export default {
           ? mainVideoPlayer.pause()
           : mainVideoPlayer.play();
 
-        subVideos.forEach(element => {
+        subVideos.forEach(video => {
           if (!mainVideoPlayer.paused()) {
-            element.childNodes[0].childNodes[0].player.play();
+            video.childNodes[0].childNodes[0].player.play();
           } else {
-            element.childNodes[0].childNodes[0].player.pause();
+            video.childNodes[0].childNodes[0].player.pause();
           }
         });
       }
+    },
+    onResize() {
+      this.windowWidth = window.innerWidth;
+    },
+    goToTime(time) {
+      // eslint-disable-next-line prettier/prettier
+      let mainVideoPlayer = this.$el.querySelector(".mainVideo").childNodes[0].childNodes[0].player;
+      let subVideos = this.$el.querySelectorAll(".subVideo");
+
+      mainVideoPlayer.currentTime(time);
+      subVideos.forEach(video => {
+        video.childNodes[0].childNodes[0].player.currentTime(time);
+      });
     },
     swapMainVideo(event) {
       let target = event.srcElement;
@@ -132,7 +182,7 @@ export default {
     playerReadied(player) {
       console.log("the player is readied", player);
 
-      const THAT = player;
+      // const THAT = player;
       let vm = this;
 
       const VIDEOSOURCE = player.player_.children_[0];
@@ -141,73 +191,6 @@ export default {
         .clone()
         .css("display", "none")
         .appendTo("body")[0];
-
-      // videojs element
-      const ROOT = $(VIDEOSOURCE).closest(".video-js");
-
-      // control bar element
-      let controlBar = ROOT.find(".vjs-control-bar");
-
-      // thumbnail element
-      controlBar.append('<div class="vjs-thumbnail"></div>');
-
-      //
-      controlBar.on("mousemove", ".vjs-progress-control", function() {
-        // getting time
-        let time = $(player)
-          .find(".vjs-mouse-display .vjs-time-tooltip")
-          .text();
-
-        //
-        let temp = null;
-
-        // format: 09
-        if (/^\d+$/.test(time)) {
-          // re-format to: 0:0:09
-          time = "0:0:" + time;
-        }
-        // format: 1:09
-        else if (/^\d+:\d+$/.test(time)) {
-          // re-format to: 0:1:09
-          time = "0:" + time;
-        }
-
-        //
-        temp = time.split(":");
-
-        // calculating to get seconds
-        time = +temp[0] * 60 * 60 + +temp[1] * 60 + +temp[2];
-
-        //
-        for (let item of vm.thumbnails) {
-          //
-          let data = item.sec.find(x => x.index === time);
-
-          // thumbnail found
-          if (data) {
-            // getting mouse position based on "vjs-mouse-display" element
-            let position = controlBar.find(".vjs-mouse-display").position();
-
-            // updating thumbnail css
-            controlBar.find(".vjs-thumbnail").css({
-              "background-image": "url(" + item.data + ")",
-              "background-position-x": data.backgroundPositionX,
-              "background-position-y": data.backgroundPositionY,
-              left: position.left + 10,
-              display: "block"
-            });
-
-            // exit
-            return;
-          }
-        }
-      });
-
-      // mouse leaving the control bar
-      controlBar.on("mouseout", ".vjs-progress-control", function() {
-        // hidding thumbnail
-        controlBar.find(".vjs-thumbnail").css("display", "none");
-      });
 
       video.addEventListener("loadeddata", async function() {
         //
@@ -227,12 +210,13 @@ export default {
         let array = [];
 
         //
-        let duration = parseInt(THAT.duration());
-        console.log(vm.horizontalItemCount);
+        let duration = vm.amountOfThumbnails;
+        console.log(duration);
         //
         for (let i = 1; i <= duration; i++) {
           array.push(i);
         }
+        console.log(array);
 
         //
         let canvas;
@@ -269,6 +253,7 @@ export default {
                 sec: [
                   {
                     index: startIndex,
+                    time: (video.duration / duration) * startIndex,
                     backgroundPositionX: -backgroundPositionX,
                     backgroundPositionY: -backgroundPositionY
                   }
@@ -283,6 +268,7 @@ export default {
               //
               item.sec.push({
                 index: startIndex,
+                time: (video.duration / duration) * startIndex,
                 backgroundPositionX: -backgroundPositionX,
                 backgroundPositionY: -backgroundPositionY
               });
@@ -292,7 +278,7 @@ export default {
             let context = canvas.getContext("2d");
 
             //
-            video.currentTime = startIndex;
+            video.currentTime = (video.duration / duration) * startIndex;
 
             //
             await new Promise(function(resolve) {
@@ -350,7 +336,7 @@ export default {
         vm.thumbnails.forEach(function(item) {
           // converting canvas to blob to get short url
           item.canvas.toBlob(
-            blob => (item.data = URL.createObjectURL(blob)),
+            blob => (item.image = URL.createObjectURL(blob)),
             "image/jpeg"
           );
 
@@ -392,12 +378,21 @@ td {
 .subVideo {
   margin: 2.5rem;
   width: 25%;
+  order: 3;
+}
+.thumbnailNavigation {
+  width: 100%;
   order: 2;
+  display: flex;
+  flex-wrap: nowrap;
 }
 .mainVideo .video {
   pointer-events: none;
 }
 .subVideo .video {
   pointer-events: none;
+}
+.thumbnail {
+  transition: width 2s, height 4s;
 }
 </style>
