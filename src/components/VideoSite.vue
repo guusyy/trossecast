@@ -186,6 +186,7 @@ export default {
     },
     playerReadied(player) {
       console.log("the player is readied", player);
+      console.log(player.player_.tagAttributes.id);
 
       // const THAT = player;
       let vm = this;
@@ -221,7 +222,6 @@ export default {
         for (let i = 1; i <= duration; i++) {
           array.push(i);
         }
-        console.log(array);
 
         //
         let canvas;
@@ -336,7 +336,6 @@ export default {
             id++;
           }
         }
-
         // looping through thumbnail list to update thumbnail
         vm.thumbnails.forEach(function(item) {
           // converting canvas to blob to get short url
