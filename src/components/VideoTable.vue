@@ -24,35 +24,48 @@ export default {
       videoData: [
         {
           id: 1,
-          date: "Datum",
-          duration: "Tijdsduur",
-          city: "Stad",
-          coordinates: "Coordinaten",
-          firstAndLastName: "Voor- en Achternaam",
+          date: "04-10-2020",
+          duration: "2:40:25",
+          city: "Amsterdam",
+          coordinates: "51.830564, 5.858252",
+          firstAndLastName: "Jip Sanders",
           videoUrls: [
             "./camera1.mp4",
             "./camera2.mp4",
             "./camera3.mp4",
             "./camera4.mp4"
-          ]
+          ],
+          songUrl: "./song.mp3"
         },
         {
           id: 2,
-          date: "10-08-1996",
+          date: "09-09-2020",
           duration: "2:21:00",
           city: "Nijmegen",
           coordinates: "51.830564, 5.858252",
           firstAndLastName: "Guus Noij",
-          videoUrls: ["http://techslides.com/demos/sample-videos/small.mp4"]
+          videoUrls: [
+            "./camera1.mp4",
+            "./camera2.mp4",
+            "./camera3.mp4",
+            "./camera4.mp4"
+          ],
+          songUrl: "./song.mp3"
         },
         {
           id: 3,
-          date: "10-08-1996",
-          duration: "2:21:00",
-          city: "Nijmegen",
+          date: "16-03-2020",
+          duration: "1:56:00",
+          city: "Rotterdam",
           coordinates: "51.830564, 5.858252",
           firstAndLastName: "Guus Noij",
-          videoUrls: ["http://techslides.com/demos/sample-videos/small.mp4"]
+          videoUrls: [
+            "./camera1.mp4",
+            "./camera2.mp4",
+            "./camera3.mp4",
+            "./camera4.mp4"
+          ],
+          songUrl: "./song.mp3"
         }
       ]
     };

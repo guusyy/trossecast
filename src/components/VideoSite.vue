@@ -40,7 +40,7 @@
             v-bind:key="thumbnail.index"
             :style="{
               marginLeft:
-                windowWidth / amountOfThumbnails - thumbnailWidth + 'px'
+                (windowWidth - 18) / amountOfThumbnails - thumbnailWidth + 'px'
             }"
           >
             <div
@@ -103,7 +103,8 @@ export default {
       thumbnailWidth: 158 / 2,
       thumbnailHeight: 90 / 2,
       horizontalItemCount: 5,
-      verticalItemCount: 5
+      verticalItemCount: 5,
+      audio: {}
     };
   },
   watch: {
@@ -129,11 +130,16 @@ export default {
         ]
       });
     });
+
+    this.audio = new Audio(this.video.songUrl);
   },
   mounted() {
     this.$nextTick(() => {
       window.addEventListener("resize", this.onResize);
     });
+  },
+  beforeDestroy() {
+    this.audio.pause();
   },
   computed: {
     player() {
@@ -149,9 +155,13 @@ export default {
         let mainVideoPlayer = this.$el.querySelector(".mainVideo").childNodes[0].childNodes[0].player;
         let subVideos = this.$el.querySelectorAll(".subVideo");
 
-        !mainVideoPlayer.paused()
-          ? mainVideoPlayer.pause()
-          : mainVideoPlayer.play();
+        if (!mainVideoPlayer.paused()) {
+          mainVideoPlayer.pause();
+          this.audio.pause();
+        } else {
+          mainVideoPlayer.play();
+          this.audio.play();
+        }
 
         subVideos.forEach(video => {
           if (!mainVideoPlayer.paused()) {
@@ -171,6 +181,8 @@ export default {
       let subVideos = this.$el.querySelectorAll(".subVideo");
 
       mainVideoPlayer.currentTime(time);
+      this.audio.currentTime = time;
+
       subVideos.forEach(video => {
         video.childNodes[0].childNodes[0].player.currentTime(time);
       });
@@ -187,6 +199,8 @@ export default {
     playerReadied(player) {
       console.log("the player is readied", player);
       console.log(player.player_.tagAttributes.id);
+
+      this.audio.play(); //starts playing the song when first video is loaded
 
       // const THAT = player;
       let vm = this;
@@ -378,11 +392,13 @@ td {
 .mainVideo {
   order: 1;
   width: 100%;
+  cursor: pointer;
 }
 .subVideo {
   margin: 2.5rem;
   width: 25%;
   order: 3;
+  cursor: zoom-in;
 }
 .thumbnailNavigation {
   width: 100%;
@@ -400,6 +416,7 @@ td {
 .thumbnail {
   transition: all 0.25s;
   transition-timing-function: cubic-bezier(0.17, 0.67, 0.83, 0.67);
+  cursor: crosshair;
 }
 .thumbnail:hover {
   z-index: 2;

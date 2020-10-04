@@ -21,8 +21,7 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: darkslategrey;
-
-  width: 100vw;
+  width: calc(100vw - (100vw - 100%));
 }
 
 #nav {
@@ -53,7 +52,7 @@ footer {
 
 .logo {
   width: 108px;
-  height: 23px;
+  height: 22px;
 }
 .footerContainer {
   max-width: 940px;
