@@ -8,7 +8,7 @@
     <footer>
       <div class="footerContainer">
         <small class="copyrightText">All rights reserved to</small>
-        <img class="logo" src="logo.png" alt="logo" >
+        <img class="logo" src="logo.png" alt="logo" />
       </div>
     </footer>
   </div>
@@ -16,7 +16,7 @@
 
 <style>
 #app {
-  font-family: 'PT Mono';
+  font-family: "PT Mono";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
