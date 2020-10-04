@@ -27,7 +27,12 @@
           @ready="playerReadied"
         />
       </div>
-      <div class="thumbnailNavigation">
+      <div
+        class="thumbnailNavigation"
+        :style="{
+          height: thumbnailHeight + 'px'
+        }"
+      >
         <template v-for="thumbnailImage in thumbnailsRender">
           <div
             class="thumbnail"
@@ -107,7 +112,7 @@ export default {
       setTimeout(function() {
         vm.thumbnailsRender = null;
         vm.thumbnailsRender = vm.thumbnails;
-      }, 10000);
+      }, 2000);
     }
   },
   beforeMount() {
@@ -385,6 +390,7 @@ td {
   order: 2;
   display: flex;
   flex-wrap: nowrap;
+  background-color: lightgray;
 }
 .mainVideo .video {
   pointer-events: none;
@@ -393,6 +399,11 @@ td {
   pointer-events: none;
 }
 .thumbnail {
-  transition: width 2s, height 4s;
+  transition: all 0.25s;
+  transition-timing-function: cubic-bezier(0.17, 0.67, 0.83, 0.67);
+}
+.thumbnail:hover {
+  z-index: 2;
+  transform: scale(2, 2);
 }
 </style>
