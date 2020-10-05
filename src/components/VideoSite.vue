@@ -107,15 +107,6 @@ export default {
       audio: {}
     };
   },
-  watch: {
-    thumbnails() {
-      let vm = this;
-      setTimeout(function() {
-        vm.thumbnailsRender = null;
-        vm.thumbnailsRender = vm.thumbnails;
-      }, 2000);
-    }
-  },
   beforeMount() {
     this.video.videoUrls.forEach(videoUrl => {
       this.videoOptions.push({
@@ -197,9 +188,6 @@ export default {
       target.classList.add("mainVideo");
     },
     playerReadied(player) {
-      console.log("the player is readied", player);
-      console.log(player.player_.tagAttributes.id);
-
       this.audio.play(); //starts playing the song when first video is loaded
 
       // const THAT = player;
@@ -230,10 +218,9 @@ export default {
         let array = [];
 
         //
-        let duration = vm.amountOfThumbnails;
-        console.log(duration);
+        let amountOfThumbnails = vm.amountOfThumbnails;
         //
-        for (let i = 1; i <= duration; i++) {
+        for (let i = 1; i <= amountOfThumbnails; i++) {
           array.push(i);
         }
 
@@ -272,7 +259,7 @@ export default {
                 sec: [
                   {
                     index: startIndex,
-                    time: (video.duration / duration) * startIndex,
+                    time: (video.duration / amountOfThumbnails) * startIndex,
                     backgroundPositionX: -backgroundPositionX,
                     backgroundPositionY: -backgroundPositionY
                   }
@@ -287,7 +274,7 @@ export default {
               //
               item.sec.push({
                 index: startIndex,
-                time: (video.duration / duration) * startIndex,
+                time: (video.duration / amountOfThumbnails) * startIndex,
                 backgroundPositionX: -backgroundPositionX,
                 backgroundPositionY: -backgroundPositionY
               });
@@ -297,7 +284,7 @@ export default {
             let context = canvas.getContext("2d");
 
             //
-            video.currentTime = (video.duration / duration) * startIndex;
+            video.currentTime = (video.duration / amountOfThumbnails) * startIndex;
 
             //
             await new Promise(function(resolve) {
@@ -361,12 +348,17 @@ export default {
           // deleting unused property
           delete item.canvas;
         });
-        console.log(vm.thumbnails);
-        console.log("done...");
-      });
 
-      // playing video to hit "loadeddata" event
-      video.play();
+        console.log("Done creating thumbnails...");
+        vm.reloadThumbnails();
+      });
+    },
+    reloadThumbnails() {
+      let vm = this;
+      setTimeout(function() {
+        vm.thumbnailsRender = null;
+        vm.thumbnailsRender = vm.thumbnails;
+      }, 500);
     }
   }
 };
