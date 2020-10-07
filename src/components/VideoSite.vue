@@ -161,9 +161,6 @@ export default {
         }
       }
     },
-    onResize() {
-      this.windowWidth = window.innerWidth;
-    },
     goToTime(time) {
       // eslint-disable-next-line prettier/prettier
       let mainVideoPlayer = this.$el.querySelector(".mainVideo").childNodes[0].childNodes[0].player;
@@ -177,20 +174,19 @@ export default {
       });
     },
     swapMainVideo(event) {
-      let target = event.srcElement;
-      let mainVideoPlayer = this.$el.querySelector(".mainVideo");
+      let clickedSubVideo = event.srcElement;
+      let retiredMainVideo = this.$el.querySelector(".mainVideo");
 
-      mainVideoPlayer.classList.add("subVideo");
-      mainVideoPlayer.classList.remove("mainVideo");
-      target.classList.remove("subVideo");
-      target.classList.add("mainVideo");
+      retiredMainVideo.classList.add("subVideo");
+      retiredMainVideo.classList.remove("mainVideo");
+      clickedSubVideo.classList.remove("subVideo");
+      clickedSubVideo.classList.add("mainVideo");
     },
     playerReadied(player) {
       this.audio.play(); //starts playing audio when first video is loaded
       this.createThumbnails(player);
     },
     createThumbnails(player) {
-      // const THAT = player;
       let vm = this;
 
       const VIDEOSOURCE = player.player_.children_[0];
@@ -320,6 +316,9 @@ export default {
       });
     },
     reloadThumbnails() {
+      //Blob image takes really short time before
+      //getting a string url, vue's render mechanism doesn't account
+      //for this. This method triggers the rerender  of thumbnails.
       let vm = this;
       setTimeout(function() {
         vm.thumbnailsRender = null;
@@ -328,6 +327,9 @@ export default {
     },
     isMainVideo(element) {
       return element.classList.contains("mainVideo");
+    },
+    onResize() {
+      this.windowWidth = window.innerWidth;
     }
   }
 };
