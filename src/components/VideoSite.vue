@@ -16,7 +16,7 @@
       <div
         class="videoWrapper mainVideo"
         @click="
-          playAndPause($event);
+          playOrPauseVideos($event);
           swapMainVideo($event);
         "
       >
@@ -62,7 +62,7 @@
         v-bind:key="otherVideo.id"
         class="videoWrapper subVideo"
         @click="
-          playAndPause($event);
+          playOrPauseVideos($event);
           swapMainVideo($event);
         "
       >
@@ -138,29 +138,27 @@ export default {
     }
   },
   methods: {
-    playAndPause(event) {
+    playOrPauseVideos(event) {
       let targetSource = event.srcElement;
 
-      if (targetSource.classList.contains("mainVideo")) {
+      if (this.isMainVideo(targetSource)) {
         // eslint-disable-next-line prettier/prettier
         let mainVideoPlayer = this.$el.querySelector(".mainVideo").childNodes[0].childNodes[0].player;
         let subVideos = this.$el.querySelectorAll(".subVideo");
 
         if (!mainVideoPlayer.paused()) {
           mainVideoPlayer.pause();
+          subVideos.forEach(video => {
+            video.childNodes[0].childNodes[0].player.pause();
+          });
           this.audio.pause();
         } else {
           mainVideoPlayer.play();
+          subVideos.forEach(video => {
+            video.childNodes[0].childNodes[0].player.play();
+          });
           this.audio.play();
         }
-
-        subVideos.forEach(video => {
-          if (!mainVideoPlayer.paused()) {
-            video.childNodes[0].childNodes[0].player.play();
-          } else {
-            video.childNodes[0].childNodes[0].player.pause();
-          }
-        });
       }
     },
     onResize() {
@@ -327,6 +325,9 @@ export default {
         vm.thumbnailsRender = null;
         vm.thumbnailsRender = vm.thumbnails;
       }, 500);
+    },
+    isMainVideo(element) {
+      return element.classList.contains("mainVideo");
     }
   }
 };
