@@ -188,8 +188,10 @@ export default {
       target.classList.add("mainVideo");
     },
     playerReadied(player) {
-      this.audio.play(); //starts playing the song when first video is loaded
-
+      this.audio.play(); //starts playing audio when first video is loaded
+      this.createThumbnails(player);
+    },
+    createThumbnails(player) {
       // const THAT = player;
       let vm = this;
 
@@ -201,33 +203,25 @@ export default {
         .appendTo("body")[0];
 
       video.addEventListener("loadeddata", async function() {
-        //
         video.pause();
 
-        //
         let count = 1;
 
-        //
         let id = 1;
 
-        //
         let x = 0,
           y = 0;
 
-        //
         let array = [];
 
-        //
         let amountOfThumbnails = vm.amountOfThumbnails;
-        //
+
         for (let i = 1; i <= amountOfThumbnails; i++) {
           array.push(i);
         }
 
-        //
         let canvas;
 
-        //
         let ii, jj;
 
         for (ii = 0, jj = array.length; ii < jj; ii += vm.horizontalItemCount) {
@@ -235,24 +229,14 @@ export default {
           for (let startIndex of array.slice(ii, ii + vm.horizontalItemCount)) {
             //
             let backgroundPositionX = x * vm.thumbnailWidth;
-
-            //
             let backgroundPositionY = y * vm.thumbnailHeight;
-
-            //
             let item = vm.thumbnails.find(x => x.id === id);
 
             if (!item) {
-              //
-
-              //
               canvas = document.createElement("canvas");
-
-              //
               canvas.width = vm.thumbnailWidth * vm.horizontalItemCount;
               canvas.height = vm.thumbnailHeight * vm.verticalItemCount;
 
-              //
               vm.thumbnails.push({
                 id: id,
                 canvas: canvas,
@@ -266,12 +250,8 @@ export default {
                 ]
               });
             } else {
-              //
-
-              //
               canvas = item.canvas;
 
-              //
               item.sec.push({
                 index: startIndex,
                 time: (video.duration / amountOfThumbnails) * startIndex,
@@ -280,13 +260,11 @@ export default {
               });
             }
 
-            //
             let context = canvas.getContext("2d");
 
-            //
-            video.currentTime = (video.duration / amountOfThumbnails) * startIndex;
+            video.currentTime =
+              (video.duration / amountOfThumbnails) * startIndex;
 
-            //
             await new Promise(function(resolve) {
               let event = function() {
                 //
@@ -298,17 +276,14 @@ export default {
                   vm.thumbnailHeight
                 );
 
-                //
                 x++;
 
                 // removing duplicate events
                 video.removeEventListener("canplay", event);
 
-                //
                 resolve();
               };
 
-              //
               video.addEventListener("canplay", event);
             });
 
@@ -324,16 +299,9 @@ export default {
 
           // checking for overflow
           if (count > vm.horizontalItemCount * vm.verticalItemCount) {
-            //
             count = 1;
-
-            //
             x = 0;
-
-            //
             y = 0;
-
-            //
             id++;
           }
         }
@@ -350,7 +318,7 @@ export default {
         });
 
         console.log("Done creating thumbnails...");
-        vm.reloadThumbnails();
+        vm.reloadThumbnails(); //Trigger render
       });
     },
     reloadThumbnails() {
