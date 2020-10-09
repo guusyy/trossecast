@@ -56,6 +56,9 @@
             ></div>
           </div>
         </template>
+        <span v-if="thumbnailsRender.length == 0" class="loadingText">
+          Loading thumbnails...
+        </span>
       </div>
       <div
         v-for="otherVideo in videoOptions.slice(1)"
@@ -95,7 +98,7 @@ export default {
   data() {
     return {
       windowWidth: window.innerWidth,
-      amountOfThumbnails: 100,
+      amountOfThumbnails: 300,
       mainVideoIsPlaying: false,
       videoOptions: [],
       thumbnails: [],
@@ -111,7 +114,7 @@ export default {
     this.video.videoUrls.forEach(videoUrl => {
       this.videoOptions.push({
         autoplay: true,
-        controls: true,
+        controls: false,
         fluid: true,
         sources: [
           {
@@ -336,9 +339,9 @@ export default {
 </script>
 
 <style>
-.vjs-control-bar {
+/* .vjs-control-bar {
   display: none !important;
-}
+} */
 td {
   border-bottom: solid 1px lightgrey;
   padding: 0.5rem 0px;
@@ -380,9 +383,13 @@ td {
   transition: all 0.25s;
   transition-timing-function: cubic-bezier(0.17, 0.67, 0.83, 0.67);
   cursor: crosshair;
+  /* border: 1px solid grey; */
 }
 .thumbnail:hover {
   z-index: 2;
   transform: scale(2, 2);
+}
+.loadingText {
+  margin: auto;
 }
 </style>
